@@ -1,0 +1,50 @@
+<section class="combos" id="combos">
+  <div class="combos-header">
+    <p class="section-eyebrow">COMBOS</p>
+
+    <h2>
+      Seu cuidado.
+      <span>Do seu jeito.</span>
+    </h2>
+
+    <p class="combos-description">
+      Combinações pensadas para quem quer aproveitar o atendimento
+      e sair com o visual completo.
+    </p>
+  </div>
+
+  <div class="combos-list">
+    @for (combo of combos; track combo.number) {
+      <article class="combo-card">
+
+        <span class="combo-number">
+          {{ combo.number }}
+        </span>
+
+        <div class="combo-main">
+          <p class="combo-name">
+            {{ combo.name }}
+          </p>
+
+          <h3>
+            {{ combo.services }}
+          </h3>
+
+          <p class="combo-description">
+            {{ combo.description }}
+          </p>
+        </div>
+
+        <a
+          href="https://loja.infinitepay.io/booking/fabio_caetano_campos_"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="combo-action"
+        >
+          Agendar
+        </a>
+
+      </article>
+    }
+  </div>
+</section>

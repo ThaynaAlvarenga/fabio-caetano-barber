@@ -1,0 +1,86 @@
+<header class="site-header">
+
+  <a
+    href="/"
+    class="brand"
+    (click)="closeMenu()"
+  >
+    <span class="brand-monogram">FC</span>
+
+    <span class="brand-name">
+      Fábio Caetano
+      <small>Barber Shop</small>
+    </span>
+  </a>
+
+  <nav
+    class="navigation"
+    [class.is-open]="menuOpen"
+  >
+    <a
+      href="#servicos"
+      (click)="closeMenu()"
+    >
+      Serviços
+    </a>
+
+    <a
+      href="#combos"
+      (click)="closeMenu()"
+    >
+      Combos
+    </a>
+
+    <a
+      href="#sobre"
+      (click)="closeMenu()"
+    >
+      Sobre
+    </a>
+
+    <a
+      href="#galeria"
+      (click)="closeMenu()"
+    >
+      Galeria
+    </a>
+
+    <a
+      href="#localizacao"
+      (click)="closeMenu()"
+    >
+      Localização
+    </a>
+
+    <a
+      href="https://loja.infinitepay.io/booking/fabio_caetano_campos_"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="mobile-booking"
+    >
+      Agendar horário
+    </a>
+  </nav>
+
+  <a
+    href="https://loja.infinitepay.io/booking/fabio_caetano_campos_"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="booking-button"
+  >
+    Agendar horário
+  </a>
+
+  <button
+    type="button"
+    class="menu-toggle"
+    [class.is-open]="menuOpen"
+    (click)="toggleMenu()"
+    [attr.aria-expanded]="menuOpen"
+    aria-label="Abrir menu"
+  >
+    <span></span>
+    <span></span>
+  </button>
+
+</header>

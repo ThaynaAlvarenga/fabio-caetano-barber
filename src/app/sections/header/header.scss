@@ -1,0 +1,301 @@
+.site-header {
+  position: relative;
+  z-index: 100;
+
+  font-family: var(--font-body);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+  padding: 1.25rem 4rem;
+
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand-monogram {
+  display: grid;
+  place-items: center;
+
+  width: 42px;
+  height: 42px;
+
+  border: 1px solid var(--color-accent);
+
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.brand-name {
+  display: flex;
+  flex-direction: column;
+
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.brand-name small {
+  margin-top: 0.2rem;
+
+  color: var(--color-accent);
+
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+}
+
+.navigation {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.navigation a {
+  color: #f2f0eb;
+
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+
+  transition: color 0.2s ease;
+}
+
+.navigation a:hover {
+  color: var(--color-accent);
+}
+
+.booking-button {
+  padding: 0.8rem 1.2rem;
+
+  background: #f2f0eb;
+  color: #0b0b0b;
+
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.booking-button:hover {
+  background: var(--color-accent);
+}
+
+/* =========================
+   MENU MOBILE
+   ========================= */
+
+.menu-toggle {
+  display: none;
+
+  width: 42px;
+  height: 42px;
+
+  padding: 0;
+
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text);
+
+  cursor: pointer;
+
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.menu-toggle span {
+  display: block;
+
+  width: 18px;
+  height: 1px;
+
+  background: var(--color-text);
+
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
+}
+
+.mobile-booking {
+  display: none;
+}
+
+/* =========================
+   TABLET
+   ========================= */
+
+@media (max-width: 1100px) {
+  .site-header {
+    padding: 1.25rem 2rem;
+  }
+
+  .navigation {
+    gap: 1.25rem;
+  }
+
+  .navigation a {
+    font-size: 0.72rem;
+  }
+
+  .booking-button {
+    padding: 0.75rem 1rem;
+
+    font-size: 0.7rem;
+  }
+}
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 768px) {
+  .site-header {
+    padding: 1rem 1.25rem;
+  }
+
+  .brand {
+    gap: 0.6rem;
+  }
+
+  .brand-monogram {
+    width: 38px;
+    height: 38px;
+
+    font-size: 0.8rem;
+  }
+
+  .brand-name {
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+  }
+
+  .brand-name small {
+    margin-top: 0.15rem;
+
+    font-size: 0.52rem;
+    letter-spacing: 0.15em;
+  }
+
+  /* Esconde navegação desktop */
+  .navigation {
+    position: absolute;
+
+    top: 100%;
+    left: 0;
+    right: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    gap: 0;
+
+    padding: 1rem 1.25rem 1.5rem;
+
+    background: var(--color-bg);
+
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transform: translateY(-10px);
+
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s ease,
+      transform 0.3s ease;
+  }
+
+  .navigation.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+
+    transform: translateY(0);
+  }
+
+  .navigation a {
+    display: flex;
+    align-items: center;
+
+    min-height: 52px;
+
+    border-bottom: 1px solid var(--color-border);
+
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+  }
+
+  .navigation a:last-child {
+    border-bottom: none;
+  }
+
+  /* Botão de agendamento dentro do menu */
+  .mobile-booking {
+    display: flex !important;
+
+    justify-content: center;
+
+    margin-top: 1rem;
+
+    min-height: 48px !important;
+
+    border: none !important;
+
+    background: #f2f0eb;
+    color: #0b0b0b !important;
+
+    padding: 0 1rem;
+
+    font-weight: 700;
+  }
+
+  .mobile-booking:hover {
+    background: var(--color-accent);
+  }
+
+  /* Esconde botão desktop */
+  .booking-button {
+    display: none;
+  }
+
+  /* Mostra hamburger */
+  .menu-toggle {
+    display: flex;
+  }
+
+  /* Hamburger → X */
+  .menu-toggle.is-open span:first-child {
+    transform: translateY(3.5px) rotate(45deg);
+  }
+
+  .menu-toggle.is-open span:last-child {
+    transform: translateY(-3.5px) rotate(-45deg);
+  }
+}

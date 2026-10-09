@@ -1,1 +1,44 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@400;500;600;700&display=swap');
+
+:root {
+  --color-bg: #0b0b0b;
+  --color-surface: #151515;
+  --color-surface-light: #1d1d1d;
+
+  --color-text: #f2f0eb;
+  --color-text-muted: #a5a29c;
+
+  --color-accent: #b8b0a0;
+  --color-border: #33312d;
+
+  --font-body: 'Manrope', sans-serif;
+  --font-display: 'DM Serif Display', serif;
+
+  --container-width: 1400px;
+
+  --space-section: 7rem;
+
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+body {
+  min-height: 100vh;
+}
