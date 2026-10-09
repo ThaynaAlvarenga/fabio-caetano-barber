@@ -1,3 +1,4 @@
+
 import {
   AfterViewInit,
   Component,
@@ -21,19 +22,35 @@ export class FcThree implements AfterViewInit, OnDestroy {
   private scene!: THREE.Scene;
   private camera!: THREE.PerspectiveCamera;
   private renderer!: THREE.WebGLRenderer;
-
   private mesh!: THREE.Group;
 
   private animationFrameId = 0;
 
-  private mouseX = 0;
-  private mouseY = 0;
-
+  // Controle de rotação
   private targetRotationX = 0;
-  private targetRotationY = 0;
+  private targetRotationY = -0.4;
 
+  private isDragging = false;
+  private activePointerId: number | null = null;
+  private lastPointerX = 0;
+  private lastPointerY = 0;
+
+  // Velocidade e suavidade
+  private readonly touchSensitivity = 0.006;
+  private readonly smoothing = 0.08;
+  private readonly autoRotationSpeed = 0.002;
+
+  // Limites da inclinação vertical
+  private readonly minRotationX = -0.65;
+  private readonly maxRotationX = 0.65;
+
+  // Animação de entrada
   private introProgress = 0;
   private introComplete = false;
+
+  // Retomada gradual da rotação automática
+  private autoRotationBlend = 1;
+  private readonly autoRotationBlendSpeed = 0.025;
 
   ngAfterViewInit(): void {
     this.initScene();
@@ -44,8 +61,8 @@ export class FcThree implements AfterViewInit, OnDestroy {
   private initScene(): void {
     const container = this.canvasContainer.nativeElement;
 
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    const width = Math.max(container.clientWidth, 1);
+    const height = Math.max(container.clientHeight, 1);
 
     this.scene = new THREE.Scene();
 
@@ -75,19 +92,19 @@ export class FcThree implements AfterViewInit, OnDestroy {
 
     this.addLights();
 
-    window.addEventListener(
-      'resize',
-      this.handleResize
-    );
-    
-    window.addEventListener(
-      'mousemove',
-      this.handleMouseMove
-    );  
+    window.addEventListener('resize', this.handleResize);
+
+    const canvas = this.renderer.domElement;
+
+    canvas.style.touchAction = 'none';
+
+    canvas.addEventListener('pointerdown', this.handlePointerDown);
+    canvas.addEventListener('pointermove', this.handlePointerMove);
+    canvas.addEventListener('pointerup', this.handlePointerUp);
+    canvas.addEventListener('pointercancel', this.handlePointerUp);
   }
 
   private addLights(): void {
-    // Luz ambiente
     const ambientLight = new THREE.AmbientLight(
       0xffffff,
       1.2
@@ -95,63 +112,43 @@ export class FcThree implements AfterViewInit, OnDestroy {
 
     this.scene.add(ambientLight);
 
-    // Luz principal — vem do canto superior direito
     const keyLight = new THREE.DirectionalLight(
       0xffffff,
       5
     );
 
     keyLight.position.set(4, 5, 6);
-
     this.scene.add(keyLight);
 
-    // Luz lateral quente — cria o reflexo champagne
     const accentLight = new THREE.PointLight(
       0xb8b0a0,
       18,
       12
     );
 
-    accentLight.position.set(
-      -4,
-      2,
-      4
-    );
-
+    accentLight.position.set(-4, 2, 4);
     this.scene.add(accentLight);
 
-    // Luz de recorte — destaca a silhueta
     const rimLight = new THREE.PointLight(
       0xffffff,
       10,
       10
     );
 
-    rimLight.position.set(
-      3,
-      -2,
-      -3
-    );
-
+    rimLight.position.set(3, -2, -3);
     this.scene.add(rimLight);
   }
 
   private createObject(): void {
     const group = new THREE.Group();
 
-    group.scale.set(0.7, 0.7, 0.7);
-    group.rotation.y = -0.4;
-
     const material = new THREE.MeshStandardMaterial({
-      color: 0x3a3936,
-      metalness: 0.9,
-      roughness: 0.22,
+      color: 0x514d45,
+      metalness: 0.82,
+      roughness: 0.2,
     });
 
-    // =========================
-    // F
-    // =========================
-
+    // Letra F
     const fShape = new THREE.Shape();
 
     fShape.moveTo(-1.8, 1.2);
@@ -166,33 +163,22 @@ export class FcThree implements AfterViewInit, OnDestroy {
     fShape.lineTo(-1.8, -1.2);
     fShape.closePath();
 
-    const fGeometry = new THREE.ExtrudeGeometry(
-      fShape,
-      {
-        depth: 0.35,
-        bevelEnabled: true,
-        bevelThickness: 0.08,
-        bevelSize: 0.05,
-        bevelSegments: 3,
-      }
-    );
+    const fGeometry = new THREE.ExtrudeGeometry(fShape, {
+      depth: 0.35,
+      bevelEnabled: true,
+      bevelThickness: 0.08,
+      bevelSize: 0.05,
+      bevelSegments: 3,
+    });
 
-    const fMesh = new THREE.Mesh(
-      fGeometry,
-      material
-    );
-
+    const fMesh = new THREE.Mesh(fGeometry, material);
     group.add(fMesh);
 
-    // =========================
-    // C
-    // =========================
-
+    // Letra C
     const cShape = new THREE.Shape();
 
     const outerRadius = 1.25;
     const innerRadius = 0.78;
-
     const startAngle = Math.PI / 4;
     const endAngle = Math.PI * 1.75;
 
@@ -216,146 +202,184 @@ export class FcThree implements AfterViewInit, OnDestroy {
 
     cShape.closePath();
 
-    const cGeometry = new THREE.ExtrudeGeometry(
-      cShape,
-      {
-        depth: 0.35,
-        bevelEnabled: true,
-        bevelThickness: 0.08,
-        bevelSize: 0.05,
-        bevelSegments: 3,
-      }
-    );
+    const cGeometry = new THREE.ExtrudeGeometry(cShape, {
+      depth: 0.35,
+      bevelEnabled: true,
+      bevelThickness: 0.08,
+      bevelSize: 0.05,
+      bevelSegments: 3,
+    });
 
-    const cMesh = new THREE.Mesh(
-      cGeometry,
-      material
-    );
-
+    const cMesh = new THREE.Mesh(cGeometry, material);
     group.add(cMesh);
 
-    // =========================
-    // GRUPO FC
-    // =========================
-
-    group.position.x = 0;
-    group.position.y = 0;
-
-    group.scale.set(0.85, 0.85, 0.85);
+    group.position.set(0, 0, 0);
+    group.scale.setScalar(0.85);
+    group.rotation.y = -0.4;
 
     this.mesh = group;
-
     this.scene.add(group);
   }
 
-  private handleMouseMove = (
-    event: MouseEvent
-  ): void => {
-    this.mouseX =
-      (event.clientX / window.innerWidth) * 2 - 1;
+  private handlePointerDown = (event: PointerEvent): void => {
+    if (event.button !== 0) return;
 
-    this.mouseY =
-      (event.clientY / window.innerHeight) * 2 - 1;
+    event.preventDefault();
 
-    this.targetRotationY =
-      this.mouseX * 0.18;
+    this.isDragging = true;
+    this.activePointerId = event.pointerId;
+    this.lastPointerX = event.clientX;
+    this.lastPointerY = event.clientY;
 
-    this.targetRotationX =
-      this.mouseY * 0.1;
+    // Interrompe a animação de entrada para permitir
+    // que o usuário controle o monograma imediatamente.
+    this.introComplete = true;
+
+    // Sincroniza o destino da rotação com a posição atual.
+    this.targetRotationX = this.mesh.rotation.x;
+    this.targetRotationY = this.mesh.rotation.y;
+
+    this.autoRotationBlend = 0;
+
+    const canvas = event.currentTarget as HTMLElement;
+
+    canvas.setPointerCapture(event.pointerId);
   };
 
+  private handlePointerMove = (event: PointerEvent): void => {
+    if (
+      !this.isDragging ||
+      event.pointerId !== this.activePointerId
+    ) {
+      return;
+    }
+
+    const deltaX = event.clientX - this.lastPointerX;
+    const deltaY = event.clientY - this.lastPointerY;
+
+    // Arraste horizontal: gira o monograma no eixo Y.
+    this.targetRotationY += deltaX * this.touchSensitivity;
+
+    // Arraste vertical: inclina o monograma no eixo X.
+    this.targetRotationX = THREE.MathUtils.clamp(
+      this.targetRotationX + deltaY * this.touchSensitivity,
+      this.minRotationX,
+      this.maxRotationX
+    );
+
+    this.lastPointerX = event.clientX;
+    this.lastPointerY = event.clientY;
+  };
+
+  private handlePointerUp = (event: PointerEvent): void => {
+    if (
+      this.activePointerId !== null &&
+      event.pointerId !== this.activePointerId
+    ) {
+      return;
+    }
+
+    this.releasePointer();
+  };
+
+  private handleWindowBlur = (): void => {
+    this.releasePointer();
+  };
+
+  private releasePointer(): void {
+    this.isDragging = false;
+    this.activePointerId = null;
+  }
+
+
   private animate = (): void => {
-    this.animationFrameId =
-      requestAnimationFrame(this.animate);
+    this.animationFrameId = requestAnimationFrame(this.animate);
+
+    if (!this.renderer) return;
 
     if (this.mesh) {
-      // =========================
-      // ANIMAÇÃO DE ENTRADA
-      // =========================
-
       if (!this.introComplete) {
         this.introProgress += 0.015;
 
-        const progress = Math.min(
-          this.introProgress,
-          1
-        );
+        const progress = Math.min(this.introProgress, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
 
-        // Ease-out
-        const eased =
-          1 - Math.pow(1 - progress, 3);
-
-        this.mesh.scale.setScalar(
-          0.7 + eased * 0.3
-        );
-
-        this.mesh.rotation.y =
-          -0.4 + eased * 0.4;
+        this.mesh.scale.setScalar(0.7 + eased * 0.3);
+        this.mesh.rotation.y = -0.4 + eased * 0.4;
 
         if (progress >= 1) {
           this.introComplete = true;
+          this.targetRotationX = this.mesh.rotation.x;
+          this.targetRotationY = this.mesh.rotation.y;
         }
       }
 
-      // =========================
-      // MOVIMENTO DO MOUSE
-      // =========================
+      if (this.introComplete) {
+        if (!this.isDragging) {
+          this.autoRotationBlend = Math.min(
+            this.autoRotationBlend + this.autoRotationBlendSpeed,
+            1
+          );
 
-      this.mesh.rotation.x +=
-        (this.targetRotationX -
-          this.mesh.rotation.x) * 0.03;
+          this.targetRotationY +=
+            this.autoRotationSpeed * this.autoRotationBlend;
+        }
 
-      this.mesh.rotation.y +=
-        (this.targetRotationY -
-          this.mesh.rotation.y) * 0.03;
+        this.mesh.rotation.x +=
+          (this.targetRotationX - this.mesh.rotation.x) *
+          this.smoothing;
 
-      // Movimento próprio extremamente sutil
+        this.mesh.rotation.y +=
+          (this.targetRotationY - this.mesh.rotation.y) *
+          this.smoothing;
+      }
+
       this.mesh.position.y =
-        Math.sin(performance.now() * 0.001) *
-        0.025;
+        Math.sin(performance.now() * 0.001) * 0.025;
     }
 
-    this.renderer.render(
-      this.scene,
-      this.camera
-    );
+    this.renderer.render(this.scene, this.camera);
   };
 
   private handleResize = (): void => {
-    const container =
-      this.canvasContainer.nativeElement;
+    if (!this.camera || !this.renderer) {
+      return;
+    }
 
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    const container = this.canvasContainer.nativeElement;
+
+    const width = Math.max(container.clientWidth, 1);
+    const height = Math.max(container.clientHeight, 1);
 
     this.camera.aspect = width / height;
-
     this.camera.updateProjectionMatrix();
 
-    this.renderer.setSize(
-      width,
-      height
+    this.renderer.setSize(width, height);
+    this.renderer.setPixelRatio(
+      Math.min(window.devicePixelRatio, 2)
     );
   };
 
-  ngOnDestroy(): void {
-    cancelAnimationFrame(
-      this.animationFrameId
-    );
 
-    window.removeEventListener(
-      'resize',
-      this.handleResize
-    );
+  ngOnDestroy(): void {
+    cancelAnimationFrame(this.animationFrameId);
+
+    window.removeEventListener('resize', this.handleResize);
+    window.removeEventListener('blur', this.handleWindowBlur);
+
+    const canvas = this.renderer?.domElement;
+
+    canvas?.removeEventListener('pointerdown', this.handlePointerDown);
+    canvas?.removeEventListener('pointermove', this.handlePointerMove);
+    canvas?.removeEventListener('pointerup', this.handlePointerUp);
+    canvas?.removeEventListener('pointercancel', this.handlePointerUp);
 
     this.mesh?.traverse((object) => {
       if (object instanceof THREE.Mesh) {
         object.geometry.dispose();
 
         if (Array.isArray(object.material)) {
-          object.material.forEach(
-            material => material.dispose()
-          );
+          object.material.forEach((material) => material.dispose());
         } else {
           object.material.dispose();
         }
@@ -363,5 +387,6 @@ export class FcThree implements AfterViewInit, OnDestroy {
     });
 
     this.renderer?.dispose();
+    canvas?.remove();
   }
 }

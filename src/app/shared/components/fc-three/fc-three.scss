@@ -1,13 +1,28 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .fc-three {
   width: 100%;
   height: 100%;
-
   overflow: hidden;
 }
 
-.fc-three canvas {
-  display: block;
+#canvasContainer {
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+}
 
+#canvasContainer:active {
+  cursor: grabbing;
+}
+
+#canvasContainer canvas {
+  display: block;
   width: 100%;
   height: 100%;
 }
